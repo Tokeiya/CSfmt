@@ -1,41 +1,17 @@
-﻿using Microsoft.Win32.SafeHandles;
-using System;
+﻿using System;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 
 namespace CSfmt
 {
-
-	public class AlignedMemoryChunk : SafeHandleZeroOrMinusOneIsInvalid
+	public sealed class AlignedMemoryChunk : CriticalFinalizerObject, IDisposable
 	{
+		private readonly IntPtr _aligned;
+		private readonly int _alignment;
 		private readonly IntPtr _head;
 		private readonly int _size;
-		private readonly int _alignment;
 
-
-		private void Check()
-		{
-			if (IsInvalid) throw new InvalidOperationException("Invalid handle.");
-			if (IsClosed) throw new ObjectDisposedException("AlignedMemoryChunk");
-		}
-
-		private void Check(int value, string paramName)
-		{
-			if (value < 0) throw new ArgumentOutOfRangeException(paramName);
-
-
-			var tmp = value;
-
-			if (tmp == 1) throw new ArgumentException("The alignment value, which must be an integer power of 2.", paramName);
-
-			while (tmp != 1)
-			{
-				if (tmp % 2 != 0)
-					throw new ArgumentException("The alignment value, which must be an integer power of 2.", paramName);
-				tmp /= 2;
-			}
-		}
-
-		public AlignedMemoryChunk(int size, int alignment) : base(true)
+		public AlignedMemoryChunk(int size, int alignment)
 		{
 			if (size <= 0) throw new ArgumentOutOfRangeException(nameof(size));
 			Check(alignment, nameof(alignment));
@@ -43,24 +19,38 @@ namespace CSfmt
 			_head = Marshal.AllocCoTaskMem(size + alignment);
 
 
-			var tmp = (ulong)_head;
+			var tmp = (ulong) _head;
 
-			for (; ; )
+			for (;;)
 			{
-				if (tmp % (ulong)alignment == 0) break;
+				if (tmp % (ulong) alignment == 0) break;
 				tmp++;
 			}
 
-			SetHandle((IntPtr)tmp);
+			_aligned = (IntPtr) tmp;
+
+
 			_size = size;
 			_alignment = alignment;
 		}
 
 
-		public IntPtr GetChunkHead()
+		public IntPtr GetChunkHead
 		{
-			Check();
-			return _head;
+			get
+			{
+				Check();
+				return _head;
+			}
+		}
+
+		public IntPtr AlignedHead
+		{
+			get
+			{
+				Check();
+				return _aligned;
+			}
 		}
 
 		public int Size
@@ -81,18 +71,69 @@ namespace CSfmt
 			}
 		}
 
-		protected override bool ReleaseHandle()
+		public bool IsClosed { get; private set; }
+
+
+		public void Dispose()
 		{
-			try
+			Dispose(true);
+		}
+
+
+		private void Check()
+		{
+			if (IsClosed) throw new ObjectDisposedException("AlignedMemoryChunk");
+		}
+
+		private void Check(int value, string paramName)
+		{
+			if (value < 0) throw new ArgumentOutOfRangeException(paramName);
+
+
+			var tmp = value;
+
+			if (tmp == 1)
+				throw new ArgumentException("The alignment value, which must be an integer power of 2.", paramName);
+
+			while (tmp != 1)
 			{
-				Marshal.FreeCoTaskMem(_head);
-				return true;
-			}
-			catch (Exception)
-			{
-				return false;
+				if (tmp % 2 != 0)
+					throw new ArgumentException("The alignment value, which must be an integer power of 2.", paramName);
+				tmp /= 2;
 			}
 		}
-	}
 
+		public unsafe Span<T> AsSpan<T>(int length) where T : unmanaged
+		{
+			Check();
+			return new Span<T>((void*) _aligned, length);
+		}
+
+		public unsafe ReadOnlySpan<T> AsReadOnlySpan<T>(int length) where T : unmanaged
+		{
+			Check();
+			return new ReadOnlySpan<T>((void*) _aligned, length);
+		}
+
+
+		private void Dispose(bool disposing)
+		{
+			if (IsClosed) return;
+
+			IsClosed = true;
+			Marshal.FreeCoTaskMem(_head);
+
+			if (disposing) GC.SuppressFinalize(this);
+		}
+
+		public void Close()
+		{
+			Dispose(true);
+		}
+
+		~AlignedMemoryChunk()
+		{
+			Dispose(false);
+		}
+	}
 }
