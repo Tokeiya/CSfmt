@@ -2,6 +2,7 @@ using ChainingAssertion;
 using CSfmt;
 using CSfmt.Float;
 using System;
+using CSfmtTest.FloatData;
 using Xunit;
 using Xunit.Abstractions;
 using static CSfmt.Float.FloatDefination;
@@ -92,7 +93,7 @@ namespace CSfmtTest.Float
 			dSfmtPrimitive.dsfmt_chk_init_by_array(dsfmt, new uint[] { 1, 2, 3, 4 }, 4);
 			var actual = new AlignedArray<double>(1024, 16);
 
-			dSfmtPrimitive.dsfmt_fill_array_close1_open2(dsfmt, actual, 1024);
+			dSfmtPrimitive.dsfmt_fill_array_close1_open2(dsfmt, actual);
 
 
 			actual.Count.Is(FillArrayClo1Ope2.Expected.Count);
@@ -113,6 +114,37 @@ namespace CSfmtTest.Float
 				status[i].Is(FillArrayClo1Ope2.ExpectedAfterState[i]);
 			}
 		}
+
+
+		[Fact]
+		public void dsfmt_fill_array_open_closeTest()
+		{
+			var dsfmt = new dSfmtPrimitiveState();
+			dSfmtPrimitive.dsfmt_chk_init_by_array(dsfmt, new uint[] { 1, 2, 3, 4 }, 4);
+			var actual = new AlignedArray<double>(1024, 16);
+
+			dSfmtPrimitive.dsfmt_fill_array_open_close(dsfmt, actual);
+
+
+			actual.Count.Is(OpenClose.Expected.Count);
+
+			for (var i = 0; i < actual.Count; i++)
+			{
+				actual[i].Is(OpenClose.Expected[i]);
+			}
+
+
+			var ptr = dsfmt.status->u32;
+			DSFMT_N32.Is(OpenClose.ExpectedAfterStatus.Count);
+
+			var status = new ReadOnlySpan<uint>(ptr, DSFMT_N32);
+
+			for (int i = 0; i < status.Length; i++)
+			{
+				status[i].Is(FillArrayClo1Ope2.ExpectedAfterState[i]);
+			}
+		}
+
 
 	}
 }

@@ -30,7 +30,7 @@ namespace TestBench
 
 			dSfmtPrimitive.dsfmt_chk_init_by_array(dsfmt, new uint[] {1, 2, 3, 4}, 4);
 
-			dSfmtPrimitive.dsfmt_fill_array_close1_open2(dsfmt, ary, 1024);
+			dSfmtPrimitive.dsfmt_fill_array_close1_open2(dsfmt, ary);
 
 
 			Console.WriteLine(ary[0].ToString("G17"));

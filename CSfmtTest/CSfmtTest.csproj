@@ -81,8 +81,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="FloatData\" />
-  </ItemGroup>
-
 </Project>

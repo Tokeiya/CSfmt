@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CSfmtTest.Float
+﻿namespace CSfmtTest.FloatData
 {
 	public static class Init0Status
 	{

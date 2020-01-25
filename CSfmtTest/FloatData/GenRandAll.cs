@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace CSfmtTest.Float
+namespace CSfmtTest.FloatData
 {
 	public static class GenRandAll
 	{

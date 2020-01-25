@@ -479,16 +479,24 @@ namespace CSfmt.Float
 			dsfmt.status[DSFMT_N] = lung;
 		}
 
-		public static void dsfmt_fill_array_close1_open2(dSfmtPrimitiveState dsfmt, AlignedArray<double> array, int size)
+		public static void dsfmt_fill_array_close1_open2(dSfmtPrimitiveState dsfmt, AlignedArray<double> array)
 		{
-			Trace.Assert(size % 2 == 0);
-			Trace.Assert(size >= DSFMT_N64);
+			Trace.Assert(array.Count % 2 == 0);
+			Trace.Assert(array.Count >= DSFMT_N64);
 
-
-			
-
-			gen_rand_array_c1o2(dsfmt, (FloatW128*)array.StatusUncheckedPointer, size / 2);
+			gen_rand_array_c1o2(dsfmt, (FloatW128*)array.StatusUncheckedPointer, array.Count / 2);
 		}
+
+		public static void dsfmt_fill_array_open_close(dSfmtPrimitiveState dsfmt, AlignedArray<double> array)
+		{
+			Trace.Assert(array.Count % 2 == 0);
+			Trace.Assert(array.Count >= DSFMT_N64);
+
+
+			gen_rand_array_o0c1(dsfmt, (FloatW128*) array.StatusUncheckedPointer, array.Count / 2);
+		}
+
+
 	}
 
 

@@ -15,23 +15,30 @@ void main()
 	
 
 	dsfmt_init_by_array(dSfmt, ar, 4);
-	dsfmt_fill_array_close1_open2(dSfmt, ary, 1024);
+	dsfmt_fill_array_open_close(dSfmt, ary, 1024);
 	
 
 	
-	std::ofstream wtr("G:\\FillArrayClo1Ope2AfterStatus.txt");
+	std::ofstream wtr("G:\\AfterStatus.txt");
 
-
-	uint32_t* ptr =& dSfmt->status[0].u32[0];
-
-	
-	
+	uint32_t* ptr =& dSfmt->status[0].u32[0];	
 	for(auto i=0;i<DSFMT_N32;i++)
 	{
 		wtr << ptr[i] << "," << std::endl;
 	}
+	wtr.close();
+
+	wtr = std::ofstream("G:\\output.txt");
+
+	wtr << std::setprecision(17);
+	
+	for(auto i=0;i<1024;i++)
+	{
+		wtr << ary[i] << "," << std::endl;
+	}
 	
 	wtr.close();
+	
 }
 
 // プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー
