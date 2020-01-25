@@ -6,6 +6,9 @@
 void main()
 {
 
+	std::cout << dsfmt_get_min_array_size() << std::endl;
+
+	return;
 	
 	
 	uint32_t ar[4] = { 1,2,3,4 };
@@ -15,7 +18,7 @@ void main()
 	
 
 	dsfmt_init_by_array(dSfmt, ar, 4);
-	dsfmt_fill_array_open_close(dSfmt, ary, 1024);
+	dsfmt_fill_array_open_open(dSfmt, ary, 1024);
 	
 
 	

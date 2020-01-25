@@ -141,8 +141,81 @@ namespace CSfmtTest.Float
 
 			for (int i = 0; i < status.Length; i++)
 			{
-				status[i].Is(FillArrayClo1Ope2.ExpectedAfterState[i]);
+				status[i].Is(OpenClose.ExpectedAfterStatus[i]);
 			}
+		}
+
+		[Fact]
+		public void dsfmt_fill_array_close_openTest()
+		{
+			var dsfmt = new dSfmtPrimitiveState();
+			dSfmtPrimitive.dsfmt_chk_init_by_array(dsfmt, new uint[] { 1, 2, 3, 4 }, 4);
+			var actual = new AlignedArray<double>(1024, 16);
+
+			dSfmtPrimitive.dsfmt_fill_array_close_open(dsfmt, actual);
+
+
+			actual.Count.Is(OpenClose.Expected.Count);
+
+			for (var i = 0; i < actual.Count; i++)
+			{
+				actual[i].Is(CloseOpen.Expected[i]);
+			}
+
+
+			var ptr = dsfmt.status->u32;
+			DSFMT_N32.Is(CloseOpen.ExpectedAfterStatus.Count);
+
+			var status = new ReadOnlySpan<uint>(ptr, DSFMT_N32);
+
+			for (int i = 0; i < status.Length; i++)
+			{
+				status[i].Is(CloseOpen.ExpectedAfterStatus[i]);
+			}
+
+		}
+
+		[Fact]
+		public void dsfmt_fill_array_open_openTest()
+		{
+			var dsfmt = new dSfmtPrimitiveState();
+			dSfmtPrimitive.dsfmt_chk_init_by_array(dsfmt, new uint[] { 1, 2, 3, 4 }, 4);
+			var actual = new AlignedArray<double>(1024, 16);
+
+			dSfmtPrimitive.dsfmt_fill_array_open_open(dsfmt, actual);
+
+
+			actual.Count.Is(OpenClose.Expected.Count);
+
+			for (var i = 0; i < actual.Count; i++)
+			{
+				actual[i].Is(OpenOpen.Expected[i]);
+			}
+
+
+			var ptr = dsfmt.status->u32;
+			DSFMT_N32.Is(OpenOpen.ExpectedAfterStatus.Count);
+
+			var status = new ReadOnlySpan<uint>(ptr, DSFMT_N32);
+
+			for (int i = 0; i < status.Length; i++)
+			{
+				status[i].Is(OpenOpen.ExpectedAfterStatus[i]);
+			}
+
+		}
+
+		[Fact]
+		public void dsfmt_get_idStringTest()
+		{
+			dSfmtPrimitive.dsfmt_get_idstring()
+				.Is("dSFMT2-19937:117-19:ffafffffffb3f-ffdfffc90fffd");
+		}
+
+		[Fact]
+		public void dsfmt_get_min_array_sizeTest()
+		{
+			dSfmtPrimitive.dsfmt_get_min_array_size().Is(382);
 		}
 
 

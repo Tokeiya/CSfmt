@@ -496,7 +496,19 @@ namespace CSfmt.Float
 			gen_rand_array_o0c1(dsfmt, (FloatW128*) array.StatusUncheckedPointer, array.Count / 2);
 		}
 
+		public static void dsfmt_fill_array_close_open(dSfmtPrimitiveState dsfmt, AlignedArray<double> array)
+		{
+			Trace.Assert(array.Count % 2 == 0);
+			Trace.Assert(array.Count >= DSFMT_N64);
+			gen_rand_array_c0o1(dsfmt, (FloatW128*) array.StatusUncheckedPointer, array.Count / 2);
+		}
 
+		public static void dsfmt_fill_array_open_open(dSfmtPrimitiveState dsfmt, AlignedArray<double> array)
+		{
+			Trace.Assert(array.Count % 2 == 0);
+			Trace.Assert(array.Count >= DSFMT_N64);
+			gen_rand_array_o0o1(dsfmt, (FloatW128*)array.StatusUncheckedPointer, array.Count / 2);
+		}
 	}
 
 
