@@ -41,6 +41,14 @@ namespace CSfmt.Float
 
 		public static readonly X128I_T sse2_param_mask;
 
+		public static readonly X128D_T sse2_double_m_one;
+
+		//static const union X128I_T sse2_int_one = {{1, 1}};
+		public static readonly X128I_T sse2_int_one;
+
+		//static const union X128D_T sse2_double_two = {{2.0, 2.0}};
+		public static readonly X128D_T sse2_double_two;
+
 		public const int dsfmt_mexp = DSFMT_MEXP;
 
 		static unsafe FloatDefination()
@@ -49,6 +57,18 @@ namespace CSfmt.Float
 			sse2_param_mask = new X128I_T();
 			sse2_param_mask.u[0] = DSFMT_MSK1;
 			sse2_param_mask.u[1] = DSFMT_MSK2;
+
+			sse2_double_m_one=new X128D_T();
+			sse2_double_m_one.d[0] = -1.0;
+			sse2_double_m_one.d[1] = -1.0;
+
+			sse2_int_one=new X128I_T();
+			sse2_int_one.u[0] = 1;
+			sse2_int_one.u[1] = 1;
+
+			sse2_double_two=new X128D_T();
+			sse2_double_two.d[0] = 2.0;
+			sse2_double_two.d[1] = 2.0;
 		}
 	}
 }

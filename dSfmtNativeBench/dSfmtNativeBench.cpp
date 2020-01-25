@@ -3,26 +3,32 @@
 
 #include "pch.h"
 
-int main()
+void main()
 {
 
 	
+	
 	uint32_t ar[4] = { 1,2,3,4 };
 
-	
 	auto dSfmt = static_cast<dsfmt_t*>(_aligned_malloc(sizeof(dsfmt_t), 16));
+	auto ary = static_cast<double*>(_aligned_malloc(sizeof(w128_t) * 1024, 16));
+	
+
 	dsfmt_init_by_array(dSfmt, ar, 4);
+	dsfmt_fill_array_close1_open2(dSfmt, ary, 1024);
+	
 
-	dsfmt_gen_rand_all(dSfmt);
+	
+	std::ofstream wtr("G:\\FillArrayClo1Ope2AfterStatus.txt");
 
-	std::ofstream wtr("G:\\GenRandAll.txt");
 
-	uint32_t* ptr = &dSfmt->status->u32[0];
+	uint32_t* ptr =& dSfmt->status[0].u32[0];
+
+	
 	
 	for(auto i=0;i<DSFMT_N32;i++)
 	{
-		std::cout << ptr[i] << std::endl;
-		wtr << ptr[i] <<","<< std::endl;
+		wtr << ptr[i] << "," << std::endl;
 	}
 	
 	wtr.close();

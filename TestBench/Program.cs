@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using CSfmt;
 using CSfmt.Float;
 using static System.Math;
 
@@ -24,25 +25,20 @@ namespace TestBench
 	{
 		private static void Main()
 		{
+			var dsfmt = new dSfmtPrimitiveState();
+			using var ary = new AlignedArray<double>(1024, 16);
 
-
-
-			using var dsfmt = new dSfmtPrimitiveState();
 			dSfmtPrimitive.dsfmt_chk_init_by_array(dsfmt, new uint[] {1, 2, 3, 4}, 4);
 
-			dSfmtPrimitive.dsfmt_gen_rand_all(dsfmt);
+			dSfmtPrimitive.dsfmt_fill_array_close1_open2(dsfmt, ary, 1024);
 
 
-			Console.WriteLine(dsfmt.status[0].u32[0]);
-			Console.WriteLine(dsfmt.status[0].u32[1]);
+			Console.WriteLine(ary[0].ToString("G17"));
 
+			dsfmt.Dispose();
 		}
 
 
-		private static void Foo(Hoge obj)
-		{
-
-		}
 
 		private static double ProbOneCanon(double p, int n) => Pow(1 - p, (Pow(n, 2) + n) / 2);
 	}

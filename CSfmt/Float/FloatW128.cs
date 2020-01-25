@@ -25,7 +25,7 @@ namespace CSfmt.Float
 	{
 
 		[FieldOffset(0)] public fixed double d[2];
-		[FieldOffset(0)] private Vector128<double> d128;
+		[FieldOffset(0)] public Vector128<double> d128;
 	}
 
 }

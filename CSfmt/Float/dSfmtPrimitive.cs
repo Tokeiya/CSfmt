@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
@@ -26,9 +27,10 @@ namespace CSfmt.Float
 
 			Vector128<int> v, w, x, y, z;
 
+
 			x = a.si;
 			//z = _mm_slli_epi64(x, DSFMT_SL1);
-			z = Sse2.ShiftLeftLogical(x, DSFMT_SL1);
+			z = Sse2.ShiftLeftLogical(x.AsInt64(),  DSFMT_SL1).AsInt32();
 
 			//y = _mm_shuffle_epi32(u->si, SSE2_SHUFF);
 			y = Sse2.Shuffle(u.si, SSE2_SHUFF);
@@ -40,7 +42,7 @@ namespace CSfmt.Float
 			y = Sse2.Xor(y, z);
 
 			//v = _mm_srli_epi64(y, DSFMT_SR);
-			v = Sse2.ShiftRightLogical(y, DSFMT_SR);
+			v = Sse2.ShiftRightLogical(y.AsUInt64(), DSFMT_SR).AsInt32();
 
 			//w = _mm_and_si128(y, sse2_param_mask.i128);
 			w = Sse2.And(y, sse2_param_mask.i128);
@@ -237,7 +239,7 @@ namespace CSfmt.Float
 					count = size;
 				}
 				r = ini_func1(psfmt32[idxof(0)] ^ psfmt32[idxof(mid % size)]
-												^ psfmt32[idxof((size - 1) % size)]);
+				                                ^ psfmt32[idxof((size - 1) % size)]);
 				psfmt32[idxof(mid % size)] += r;
 				r +=(uint) key_length;
 				psfmt32[idxof((mid + lag) % size)] += r;
@@ -246,8 +248,8 @@ namespace CSfmt.Float
 				for (i = 1, j = 0; (j < count) && (j < key_length); j++)
 				{
 					r = ini_func1(psfmt32[idxof(i)]
-								  ^ psfmt32[idxof((i + mid) % size)]
-								  ^ psfmt32[idxof((i + size - 1) % size)]);
+					              ^ psfmt32[idxof((i + mid) % size)]
+					              ^ psfmt32[idxof((i + size - 1) % size)]);
 					psfmt32[idxof((i + mid) % size)] += r;
 					r += (uint)(init_key[j] + i);
 					psfmt32[idxof((i + mid + lag) % size)] += r;
@@ -257,8 +259,8 @@ namespace CSfmt.Float
 				for (; j < count; j++)
 				{
 					r = ini_func1(psfmt32[idxof(i)]
-								  ^ psfmt32[idxof((i + mid) % size)]
-								  ^ psfmt32[idxof((i + size - 1) % size)]);
+					              ^ psfmt32[idxof((i + mid) % size)]
+					              ^ psfmt32[idxof((i + size - 1) % size)]);
 					psfmt32[idxof((i + mid) % size)] += r;
 					r +=(uint) i;
 					psfmt32[idxof((i + mid + lag) % size)] += r;
@@ -268,8 +270,8 @@ namespace CSfmt.Float
 				for (j = 0; j < size; j++)
 				{
 					r = ini_func2(psfmt32[idxof(i)]
-								  + psfmt32[idxof((i + mid) % size)]
-								  + psfmt32[idxof((i + size - 1) % size)]);
+					              + psfmt32[idxof((i + mid) % size)]
+					              + psfmt32[idxof((i + size - 1) % size)]);
 					psfmt32[idxof((i + mid) % size)] ^= r;
 					r -=(uint) i;
 					psfmt32[idxof((i + mid + lag) % size)] ^= r;
@@ -281,7 +283,213 @@ namespace CSfmt.Float
 				dsfmt.idx = DSFMT_N64;
 			}
 		}
+
+		private static void gen_rand_array_c1o2(dSfmtPrimitiveState dsfmt, FloatW128* array,
+			int size)
+		{
+			int i, j;
+			FloatW128 lung;
+
+			lung = dsfmt.status[DSFMT_N];
+			do_recursion(ref array[0], ref dsfmt.status[0], ref dsfmt.status[DSFMT_POS1],
+				ref lung);
+			for (i = 1; i < DSFMT_N - DSFMT_POS1; i++)
+			{
+				do_recursion(ref array[i], ref dsfmt.status[i],
+					ref dsfmt.status[i + DSFMT_POS1], ref lung);
+			}
+			for (; i < DSFMT_N; i++)
+			{
+				do_recursion(ref array[i], ref dsfmt.status[i],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+			}
+			for (; i < size - DSFMT_N; i++)
+			{
+				do_recursion(ref array[i], ref array[i - DSFMT_N],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+			}
+			for (j = 0; j < 2 * DSFMT_N - size; j++)
+			{
+				dsfmt.status[j] = array[j + size - DSFMT_N];
+			}
+			for (; i < size; i++, j++)
+			{
+				do_recursion(ref array[i], ref array[i - DSFMT_N],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+				dsfmt.status[j] = array[i];
+			}
+			dsfmt.status[DSFMT_N] = lung;
+		}
+		
+		private static void gen_rand_array_c0o1(dSfmtPrimitiveState dsfmt, FloatW128* array,
+			int size)
+		{
+
+			static void convert_c0o1(ref FloatW128 w)
+			{
+				w.sd = Sse2.Add(w.sd, FloatDefination.sse2_double_m_one.d128);
+			}
+
+			int i, j;
+			FloatW128 lung;
+
+			lung = dsfmt.status[DSFMT_N];
+			do_recursion(ref array[0], ref dsfmt.status[0], ref dsfmt.status[DSFMT_POS1],
+				ref lung);
+
+			for (i = 1; i < DSFMT_N - DSFMT_POS1; i++)
+			{
+				do_recursion(ref array[i], ref dsfmt.status[i],
+					ref dsfmt.status[i + DSFMT_POS1], ref lung);
+			}
+			for (; i < DSFMT_N; i++)
+			{
+				do_recursion(ref array[i], ref dsfmt.status[i],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+			}
+			for (; i < size - DSFMT_N; i++)
+			{
+				do_recursion(ref array[i], ref array[i - DSFMT_N],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+				convert_c0o1(ref array[i - DSFMT_N]);
+			}
+			for (j = 0; j < 2 * DSFMT_N - size; j++)
+			{
+				dsfmt.status[j] = array[j + size - DSFMT_N];
+			}
+			for (; i < size; i++, j++)
+			{
+				do_recursion(ref array[i], ref array[i - DSFMT_N],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+				dsfmt.status[j] = array[i];
+				convert_c0o1(ref array[i - DSFMT_N]);
+			}
+			for (i = size - DSFMT_N; i < size; i++)
+			{
+				convert_c0o1(ref array[i]);
+			}
+			dsfmt.status[DSFMT_N] = lung;
+		}
+
+
+
+		private static void gen_rand_array_o0o1(dSfmtPrimitiveState dsfmt,  FloatW128* array, int size)
+		{
+			static void convert_o0o1(ref FloatW128 w)
+			{
+				w.si = Sse2.Or(w.si, sse2_int_one.i128);
+				w.sd = Sse2.Add(w.sd, sse2_double_m_one.d128);
+			}
+
+			int i, j;
+			FloatW128 lung;
+
+			lung = dsfmt.status[DSFMT_N];
+			do_recursion(ref array[0], ref dsfmt.status[0], ref dsfmt.status[DSFMT_POS1],
+				ref lung);
+
+
+			for (i = 1; i < DSFMT_N - DSFMT_POS1; i++)
+			{
+				do_recursion(ref array[i], ref dsfmt.status[i],
+					ref dsfmt.status[i + DSFMT_POS1], ref lung);
+			}
+
+			for (; i < DSFMT_N; i++)
+			{
+				do_recursion(ref array[i], ref dsfmt.status[i],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+			}
+
+			for (; i < size - DSFMT_N; i++)
+			{
+				do_recursion(ref array[i], ref array[i - DSFMT_N],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+				convert_o0o1(ref array[i - DSFMT_N]);
+			}
+
+			for (j = 0; j < 2 * DSFMT_N - size; j++)
+			{
+				dsfmt.status[j] = array[j + size - DSFMT_N];
+			}
+
+			for (; i < size; i++, j++)
+			{
+				do_recursion(ref array[i], ref array[i - DSFMT_N],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+				dsfmt.status[j] = array[i];
+				convert_o0o1(ref array[i - DSFMT_N]);
+			}
+
+			for (i = size - DSFMT_N; i < size; i++)
+			{
+				convert_o0o1(ref array[i]);
+			}
+
+			dsfmt.status[DSFMT_N] = lung;
+		}
+
+
+		static void gen_rand_array_o0c1(dSfmtPrimitiveState dsfmt, FloatW128* array,
+			int size)
+		{
+
+			static void convert_o0c1(ref FloatW128 w)
+			{
+				w.sd = Sse2.Subtract(sse2_double_two.d128, w.sd);
+			}
+
+			int i, j;
+			FloatW128 lung;
+
+			lung = dsfmt.status[DSFMT_N];
+			do_recursion(ref array[0], ref dsfmt.status[0], ref dsfmt.status[DSFMT_POS1],
+				ref lung);
+			for (i = 1; i < DSFMT_N - DSFMT_POS1; i++)
+			{
+				do_recursion(ref array[i], ref dsfmt.status[i],
+					ref dsfmt.status[i + DSFMT_POS1], ref lung);
+			}
+			for (; i < DSFMT_N; i++)
+			{
+				do_recursion(ref array[i], ref dsfmt.status[i],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+			}
+			for (; i < size - DSFMT_N; i++)
+			{
+				do_recursion(ref array[i], ref array[i - DSFMT_N],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+				convert_o0c1(ref array[i - DSFMT_N]);
+			}
+			for (j = 0; j < 2 * DSFMT_N - size; j++)
+			{
+				dsfmt.status[j] = array[j + size - DSFMT_N];
+			}
+			for (; i < size; i++, j++)
+			{
+				do_recursion(ref array[i], ref array[i - DSFMT_N],
+					ref array[i + DSFMT_POS1 - DSFMT_N], ref lung);
+				dsfmt.status[j] = array[i];
+				convert_o0c1(ref array[i - DSFMT_N]);
+			}
+			for (i = size - DSFMT_N; i < size; i++)
+			{
+				convert_o0c1(ref array[i]);
+			}
+			dsfmt.status[DSFMT_N] = lung;
+		}
+
+		public static void dsfmt_fill_array_close1_open2(dSfmtPrimitiveState dsfmt, AlignedArray<double> array, int size)
+		{
+			Trace.Assert(size % 2 == 0);
+			Trace.Assert(size >= DSFMT_N64);
+
+
+			
+
+			gen_rand_array_c1o2(dsfmt, (FloatW128*)array.StatusUncheckedPointer, size / 2);
+		}
 	}
 
-	
+
 }
