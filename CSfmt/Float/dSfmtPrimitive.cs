@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
@@ -509,6 +511,59 @@ namespace CSfmt.Float
 			Trace.Assert(array.Count >= DSFMT_N64);
 			gen_rand_array_o0o1(dsfmt, (FloatW128*)array.StatusUncheckedPointer, array.Count / 2);
 		}
+
+		public static double dsfmt_genrand_close1_open2(dSfmtPrimitiveState dsfmt)
+		{
+			double r;
+			double* psfmt64 = &dsfmt.status[0].d[0];
+
+
+			if (dsfmt.idx >= DSFMT_N64)
+			{
+				dsfmt_gen_rand_all(dsfmt);
+				dsfmt.idx = 0;
+			}
+
+			r = psfmt64[dsfmt.idx++];
+			return r;
+		}
+
+		public static double dsfmt_genrand_close_open(dSfmtPrimitiveState dsfmt)
+			=> dsfmt_genrand_close1_open2(dsfmt) - 1.0;
+
+		public static double dsfmt_genrand_open_close(dSfmtPrimitiveState dsfmt)
+			=> 2.0 - dsfmt_genrand_close1_open2(dsfmt);
+
+		[StructLayout(LayoutKind.Explicit)]
+		private struct  RImpl
+		{
+			[FieldOffset(0)]public double d;
+			[FieldOffset(0)] public ulong u;
+		}
+
+
+		public static double dsfmt_genrand_open_open(dSfmtPrimitiveState dsfmt)
+		{
+			double* dsfmt64 = &dsfmt.status[0].d[0];
+			//union {
+			//	double d;
+			//	uint64_t u;
+			//}
+			//r;
+
+			RImpl r = new RImpl();
+
+			if (dsfmt.idx >= DSFMT_N64)
+			{
+				dsfmt_gen_rand_all(dsfmt);
+				dsfmt.idx = 0;
+			}
+			r.d = dsfmt64[dsfmt.idx++];
+			r.u |= 1;
+			return r.d - 1.0;
+
+		}
+
 	}
 
 
