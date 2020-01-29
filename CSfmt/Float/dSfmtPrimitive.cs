@@ -66,7 +66,7 @@ namespace CSfmt.Float
 		public static void dsfmt_gen_rand_all(dSfmtPrimitiveState dsfmt)
 		{
 			int i;
-			FloatW128 lung;
+			FloatW128 lung=new FloatW128();
 
 			lung = dsfmt.status[DSFMT_N];
 
@@ -133,6 +133,8 @@ namespace CSfmt.Float
 			{
 				return;
 			}
+
+			dsfmt.status[DSFMT_N].u[1] ^= 1;
 		}
 
 		public static int idxof(int i)
@@ -146,17 +148,18 @@ namespace CSfmt.Float
 			int i;
 			uint* psfmt;
 
-			if (mexp != dsfmt_mexp) throw new InvalidOperationException();
-
+			/* make sure caller program is compiled with the same MEXP */
 			psfmt = &dsfmt.status[0].u32[0];
 
 			psfmt[idxof(0)] = seed;
 			for (i = 1; i < (DSFMT_N + 1) * 4; i++)
 			{
-
 				psfmt[idxof(i)] = 1812433253U * (psfmt[idxof(i - 1)] ^ (psfmt[idxof(i - 1)] >> 30)) + (uint) i;
 			}
 			initial_mask(dsfmt);
+
+
+
 			period_certification(dsfmt);
 			dsfmt.idx = DSFMT_N64;
 		}
@@ -545,11 +548,6 @@ namespace CSfmt.Float
 		public static double dsfmt_genrand_open_open(dSfmtPrimitiveState dsfmt)
 		{
 			double* dsfmt64 = &dsfmt.status[0].d[0];
-			//union {
-			//	double d;
-			//	uint64_t u;
-			//}
-			//r;
 
 			RImpl r = new RImpl();
 

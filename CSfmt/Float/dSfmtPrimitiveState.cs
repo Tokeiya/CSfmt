@@ -24,7 +24,8 @@ namespace CSfmt.Float
 
 		public dSfmtPrimitiveState()
 		{
-			_chunk = new AlignedMemoryChunk(sizeof(ulong) * DSFMT_N64, 16);
+			_chunk = new AlignedMemoryChunk(sizeof(ulong) * (DSFMT_N + 1) * 2, 16);
+			//_chunk = new AlignedMemoryChunk(3104, 16);
 			status = (FloatW128*) _chunk.AlignedHead;
 			idx = 0;
 		}

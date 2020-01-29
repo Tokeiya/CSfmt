@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using CSfmt;
 using CSfmt.Float;
+using CSfmt.Integer;
 using static System.Math;
 
 namespace TestBench
@@ -25,17 +26,8 @@ namespace TestBench
 	{
 		private static void Main()
 		{
-			var dsfmt = new dSfmtPrimitiveState();
-			using var ary = new AlignedArray<double>(1024, 16);
 
-			dSfmtPrimitive.dsfmt_chk_init_by_array(dsfmt, new uint[] {1, 2, 3, 4}, 4);
-
-			dSfmtPrimitive.dsfmt_fill_array_close1_open2(dsfmt, ary);
-
-
-			Console.WriteLine(ary[0].ToString("G17"));
-
-			dsfmt.Dispose();
+			Console.WriteLine(sizeof(ulong) * (FloatDefination.DSFMT_N + 1) * 2);
 		}
 
 

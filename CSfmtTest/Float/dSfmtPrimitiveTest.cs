@@ -2,6 +2,8 @@ using ChainingAssertion;
 using CSfmt;
 using CSfmt.Float;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using CSfmtTest.FloatData;
 using Xunit;
 using Xunit.Abstractions;
@@ -32,10 +34,12 @@ namespace CSfmtTest.Float
 			using var dSfmt = new dSfmtPrimitiveState();
 			dSfmtPrimitive.dsfmt_init_gen_rand(dSfmt, 0);
 
-			var actual = new ReadOnlySpan<uint>(dSfmt.status, FloatDefination.DSFMT_N32);
+			var actual32 = new ReadOnlySpan<uint>(dSfmt.status, FloatDefination.DSFMT_N32);
 
-			AreEqual(Init0Status.Expected, actual);
+			AreEqual(Init0Status.Expected, actual32);
 
+			var actual64 = new ReadOnlySpan<ulong>(dSfmt.status, DSFMT_N64);
+			AreEqual(Init0Status.ExpectedUlong, actual64);
 		}
 
 		[Fact]
@@ -85,6 +89,22 @@ namespace CSfmtTest.Float
 			}
 
 		}
+
+		[Fact]
+		public void GenRandAllTestInit0()
+		{
+			using var dsfmt = new dSfmtPrimitiveState();
+			dSfmtPrimitive.dsfmt_init_gen_rand(dsfmt, 0);
+
+			dSfmtPrimitive.dsfmt_gen_rand_all(dsfmt);
+
+			AreEqual(GenRandAll.FirstState,
+				new ReadOnlySpan<ulong>(dsfmt.status->u, DSFMT_N64));
+
+
+
+		}
+
 
 		[Fact]
 		public void FillArrayClo1Ope2Test()
@@ -216,6 +236,51 @@ namespace CSfmtTest.Float
 		public void dsfmt_get_min_array_sizeTest()
 		{
 			dSfmtPrimitive.dsfmt_get_min_array_size().Is(382);
+		}
+
+
+		private static void AssertExpectedAfterState(dSfmtPrimitiveState actual, IReadOnlyList<ulong> expected)
+		{
+			expected.Count.Is(DSFMT_N64);
+			ulong* ptr = &actual.status->u[0];
+
+			for (int i = 0; i < DSFMT_N64; i++)
+			{
+				ptr[i].Is(expected[i]);
+			}
+
+		}
+
+		private static void AssertOutput(IReadOnlyList<double> actual, IReadOnlyList<double> expected)
+		{
+			actual.Count.Is(expected.Count);
+
+
+			for (int i = 0; i < expected.Count; i++)
+			{
+				actual[i].Is(expected[i], i.ToString());
+			}
+
+		}
+
+		[Fact]
+		public void DsfmtGenrandClose1Open2Test()
+		{
+			using var dsfmt = new dSfmtPrimitiveState();
+			dSfmtPrimitive.dsfmt_init_gen_rand(dsfmt, 0);
+
+			var actual=new double[1024];
+
+			for (int i = 0; i < actual.Length; i++)
+			{
+				actual[i] = dSfmtPrimitive.dsfmt_genrand_close1_open2(dsfmt);
+			}
+
+			AssertOutput(actual, GenRandClose1Open2.Expected);
+
+			AssertExpectedAfterState(dsfmt, GenRandClose1Open2.ExpectedAfterState);
+
+
 		}
 
 

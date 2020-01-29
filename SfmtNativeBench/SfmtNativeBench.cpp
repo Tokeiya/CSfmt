@@ -7,18 +7,7 @@
 int main()
 {
 
-	uint32_t key[32];
-	for (auto i = 0; i < 32; i++) key[i] = i + 42;
-
-	
-	auto sfmt = static_cast<sfmt_t*>(_aligned_malloc(sizeof(sfmt_t), 16));
-	sfmt_init_by_array(sfmt, key, 32);
-
-
-	std::cout << sfmt_get_idstring(sfmt) << std::endl;
-	std::cout << sfmt_get_min_array_size32(sfmt) << std::endl;
-	std::cout << sfmt_get_min_array_size64(sfmt) << std::endl;
-	
+	std::cout << sizeof(sfmt_t) << std::endl;
 	
 	
 	

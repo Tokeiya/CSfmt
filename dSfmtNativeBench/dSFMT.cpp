@@ -335,6 +335,8 @@ static void initial_mask(dsfmt_t *dsfmt) {
 	psfmt = &dsfmt->status[0].u[0];
 	for (i = 0; i < DSFMT_N * 2; i++) {
 		psfmt[i] = (psfmt[i] & DSFMT_LOW_MASK) | DSFMT_HIGH_CONST;
+
+		std::cout << psfmt[i] << std::endl;
 	}
 }
 
@@ -539,8 +541,12 @@ void dsfmt_chk_init_gen_rand(dsfmt_t *dsfmt, uint32_t seed, int mexp) {
 	for (i = 1; i < (DSFMT_N + 1) * 4; i++) {
 		psfmt[idxof(i)] = 1812433253UL
 		* (psfmt[idxof(i - 1)] ^ (psfmt[idxof(i - 1)] >> 30)) + i;
+
 	}
 	initial_mask(dsfmt);
+
+	
+	
 	period_certification(dsfmt);
 	dsfmt->idx = DSFMT_N64;
 }

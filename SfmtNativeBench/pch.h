@@ -14,7 +14,7 @@
 #include "SFMT.h"
 #include <fstream>
 #include <string>
-
+#include <emmintrin.h>
 
 #endif //PCH_H
 

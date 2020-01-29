@@ -16,6 +16,8 @@
  * The new BSD License is applied to this software, see LICENSE.txt
  */
 
+#include "pch.h"
+
 #ifndef SFMT_SSE2_MSC_H
 #define SFMT_SSE2_MSC_H
 
