@@ -277,11 +277,62 @@ namespace CSfmtTest.Float
 			}
 
 			AssertOutput(actual, GenRandClose1Open2.Expected);
-
 			AssertExpectedAfterState(dsfmt, GenRandClose1Open2.ExpectedAfterState);
+		}
 
+		[Fact]
+		public void GenrandCloseOpenTest()
+		{
+			using var dsfmt = new dSfmtPrimitiveState();
+			dSfmtPrimitive.dsfmt_init_gen_rand(dsfmt, 0);
+
+			var actual = new double[1024];
+
+			for (int i = 0; i < actual.Length; i++)
+			{
+				actual[i] = dSfmtPrimitive.dsfmt_genrand_close_open(dsfmt);
+			}
+
+			AssertOutput(actual, GenRandCloseOpen.Expected);
+			AssertExpectedAfterState(dsfmt, GenRandCloseOpen.ExpectedAfterState);
+		}
+
+		[Fact]
+		public void GenrandOpenCloseTest()
+		{
+			using var dsfmt = new dSfmtPrimitiveState();
+			dSfmtPrimitive.dsfmt_init_gen_rand(dsfmt, 0);
+
+			var actual = new double[1024];
+
+			for (int i = 0; i < actual.Length; i++)
+			{
+				actual[i] = dSfmtPrimitive.dsfmt_genrand_open_close(dsfmt);
+			}
+
+			AssertOutput(actual, GenRandOpenClose.Expected);
+			AssertExpectedAfterState(dsfmt, GenRandOpenClose.ExpectedAfterState);
 
 		}
+
+		[Fact]
+		public void GenrandOpenOpenTest()
+		{
+			using var dsfmt = new dSfmtPrimitiveState();
+			dSfmtPrimitive.dsfmt_init_gen_rand(dsfmt, 0);
+
+			var actual = new double[1024];
+
+			for (int i = 0; i < actual.Length; i++)
+			{
+				actual[i] = dSfmtPrimitive.dsfmt_genrand_open_open(dsfmt);
+			}
+
+			AssertOutput(actual, GenrandOpenOpen.Expected);
+			AssertExpectedAfterState(dsfmt, GenrandOpenOpen.ExpectedAfterState);
+
+		}
+
 
 
 	}
