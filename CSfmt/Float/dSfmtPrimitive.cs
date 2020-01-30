@@ -562,6 +562,23 @@ namespace CSfmt.Float
 
 		}
 
+		public static uint dsfmt_genrand_uint32(dSfmtPrimitiveState dsfmt)
+		{
+			uint r;
+			ulong* psfmt64 = &dsfmt.status[0].u[0];
+
+			if (dsfmt.idx >= DSFMT_N64)
+			{
+				dsfmt_gen_rand_all(dsfmt);
+				dsfmt.idx = 0;
+			}
+
+			r = (uint) (psfmt64[dsfmt.idx++] & 0xffffffffU);
+			return r;
+		}
+
+
+
 	}
 
 

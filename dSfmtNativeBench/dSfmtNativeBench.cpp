@@ -33,12 +33,38 @@ void generate_sample()
 
 void main()
 {
-
-
-	
 	auto dSfmt = static_cast<dsfmt_t*>(_aligned_malloc(sizeof(dsfmt_t), 16));
-	dsfmt_init_gen_rand(dSfmt, 0);
+	dsfmt_init_gen_rand(dSfmt, 114514);
 
+	std::ofstream wtr("g:\\initState.txt");
+	auto ptr = &dSfmt->status->u[0];
+
+	for(auto i=0;i<DSFMT_N64+2;i++)
+	{
+		wtr << ptr[i] << ',' << std::endl;
+	}
+
+	wtr.close;
+
+	wtr = std::ofstream("G:\\output.txt");
+
+	for(auto i=0;i<1024;i++)
+	{
+		wtr << dsfmt_genrand_uint32(dSfmt) << "," << std::endl;
+	}
+
+	wtr.close();
+
+	wtr = std::ofstream("G:\\AfterState.txt");
+	
+	
+	for(auto i=0;i<DSFMT_N64+2;i++)
+	{
+		wtr << ptr[i] << ',' << std::endl;
+	}
+
+
+	wtr.close();
 	
 	
 }

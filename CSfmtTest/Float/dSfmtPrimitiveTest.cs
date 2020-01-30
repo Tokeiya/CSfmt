@@ -7,6 +7,7 @@ using System.Reflection;
 using CSfmtTest.FloatData;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 using static CSfmt.Float.FloatDefination;
 
 namespace CSfmtTest.Float
@@ -330,6 +331,28 @@ namespace CSfmtTest.Float
 
 			AssertOutput(actual, GenrandOpenOpen.Expected);
 			AssertExpectedAfterState(dsfmt, GenrandOpenOpen.ExpectedAfterState);
+
+		}
+
+
+		[Fact]
+		public void dsfmt_genrand_uint32Test()
+		{
+			using var dsfmt = new dSfmtPrimitiveState();
+			dSfmtPrimitive.dsfmt_init_gen_rand(dsfmt, 114514);
+
+			var actual = new uint[1024];
+			for (var i = 0; i < actual.Length; i++)
+			{
+				actual[i] = dSfmtPrimitive.dsfmt_genrand_uint32(dsfmt);
+			}
+
+			actual.Length.Is(GenUint32.Expected.Count);
+
+			for (int i = 0; i < actual.Length; i++)
+			{
+				actual[i].Is(GenUint32.Expected[i]);
+			}
 
 		}
 

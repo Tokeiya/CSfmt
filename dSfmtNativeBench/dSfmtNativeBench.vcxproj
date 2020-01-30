@@ -158,6 +158,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dSFMT-jump.h" />
     <ClInclude Include="dSFMT-params.h" />
     <ClInclude Include="dSFMT-params19937.h" />
     <ClInclude Include="dSFMT.h" />

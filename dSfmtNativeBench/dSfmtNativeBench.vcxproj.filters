@@ -41,5 +41,8 @@
     <ClInclude Include="dSFMT-params19937.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="dSFMT-jump.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
