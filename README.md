@@ -1,2 +1,2 @@
 # CSfmt
-SFMT and dSFMT implementation in C#
+SFMT and dSFMT with Jump implementation in C#
