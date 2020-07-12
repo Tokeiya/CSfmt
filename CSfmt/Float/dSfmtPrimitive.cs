@@ -26,40 +26,19 @@ namespace CSfmt.Float
 
 		static void do_recursion(ref FloatW128 r, ref FloatW128 a, ref FloatW128 b, ref FloatW128 u)
 		{
-
-			Vector128<int> v, w, x, y, z;
-
+            Vector128<int> v, w, x, y, z;
 
 			x = a.si;
-			//z = _mm_slli_epi64(x, DSFMT_SL1);
 			z = Sse2.ShiftLeftLogical(x.AsInt64(),  DSFMT_SL1).AsInt32();
-
-			//y = _mm_shuffle_epi32(u->si, SSE2_SHUFF);
-			y = Sse2.Shuffle(u.si, SSE2_SHUFF);
-
-			//z = _mm_xor_si128(z, b->si);
-			z = Sse2.Xor(z, b.si);
-
-			//y = _mm_xor_si128(y, z);
-			y = Sse2.Xor(y, z);
-
-			//v = _mm_srli_epi64(y, DSFMT_SR);
-			v = Sse2.ShiftRightLogical(y.AsUInt64(), DSFMT_SR).AsInt32();
-
-			//w = _mm_and_si128(y, sse2_param_mask.i128);
-			w = Sse2.And(y, sse2_param_mask.i128);
-
-			//v = _mm_xor_si128(v, x);
-			v = Sse2.Xor(v, x);
-
-			//v = _mm_xor_si128(v, w);
-			v = Sse2.Xor(v, w);
-
-			//r->si = v;
-			r.si = v;
-
-			//u->si = y;
-			u.si = y;
+            y = Sse2.Shuffle(u.si, SSE2_SHUFF);
+            z = Sse2.Xor(z, b.si);
+            y = Sse2.Xor(y, z);
+            v = Sse2.ShiftRightLogical(y.AsUInt64(), DSFMT_SR).AsInt32();
+            w = Sse2.And(y, sse2_param_mask.i128);
+            v = Sse2.Xor(v, x);
+            v = Sse2.Xor(v, w);
+            r.si = v;
+            u.si = y;
 		}
 
 
@@ -205,14 +184,7 @@ namespace CSfmt.Float
 				uint* psfmt32;
 				int lag;
 				int mid;
-				int size = (DSFMT_N + 1) * 4;   /* pulmonary */
-
-				/* make sure caller program is compiled with the same MEXP */
-				//if (mexp != dsfmt_mexp)
-				//{
-				//	fprintf(stderr, "DSFMT_MEXP doesn't match with dSFMT.c\n");
-				//	exit(1);
-				//}
+				int size = (DSFMT_N + 1) * 4;
 
 
 				if (size >= 623)

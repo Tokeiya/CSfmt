@@ -2,70 +2,17 @@
 //
 
 #include "pch.h"
+#include <string>
+#include<vector>
+#include <array>
+#include <vector>
+#include <iterator>
 
-void generate_sample()
+
+
+
+int main()
 {
-	auto dSfmt = static_cast<dsfmt_t*>(_aligned_malloc(sizeof(dsfmt_t), 16));
-	dsfmt_init_gen_rand(dSfmt, 0);
-	
-	std::ofstream wtr("G:\\output.txt");
-	wtr << std::setprecision(17);
-
-	for (auto i=0;i<1024;i++)
-	{
-		double d = dsfmt_genrand_close1_open2(dSfmt);
-		wtr << d << "," << std::endl;
-	}
-
-	wtr.close();
-
-	wtr = std::ofstream("G:\\after_state.txt");
-	auto ptr = &dSfmt->status->u[0];
-	
-	for(auto i=0;i<DSFMT_N64;i++)
-	{
-		wtr << ptr[i] << "," << std::endl;
-	}
-
-	wtr.close();
-
-}
-
-void main()
-{
-	auto dSfmt = static_cast<dsfmt_t*>(_aligned_malloc(sizeof(dsfmt_t), 16));
-	dsfmt_init_gen_rand(dSfmt, 114514);
-
-	std::ofstream wtr("g:\\initState.txt");
-	auto ptr = &dSfmt->status->u[0];
-
-	for(auto i=0;i<DSFMT_N64+2;i++)
-	{
-		wtr << ptr[i] << ',' << std::endl;
-	}
-
-	wtr.close;
-
-	wtr = std::ofstream("G:\\output.txt");
-
-	for(auto i=0;i<1024;i++)
-	{
-		wtr << dsfmt_genrand_uint32(dSfmt) << "," << std::endl;
-	}
-
-	wtr.close();
-
-	wtr = std::ofstream("G:\\AfterState.txt");
-	
-	
-	for(auto i=0;i<DSFMT_N64+2;i++)
-	{
-		wtr << ptr[i] << ',' << std::endl;
-	}
-
-
-	wtr.close();
-	
 	
 }
 

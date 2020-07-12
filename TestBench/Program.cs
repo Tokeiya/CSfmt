@@ -10,28 +10,28 @@ using static System.Math;
 namespace TestBench
 {
 
-	public class Hoge
-	{
-		public int Value { get; set; }
-	}
-
-	public class Piyo : Hoge
-	{
-
-	}
-
 
 
 	internal unsafe class Program
 	{
 		private static void Main()
 		{
+			using var array = new AlignedArray<uint>(1024, 16);
 
-			Console.WriteLine(sizeof(ulong) * (FloatDefination.DSFMT_N + 1) * 2);
+			using var sfmt = new SfmtPrimitiveState();
+			SfmtPrimitive.InitGenRand(sfmt,1234);
+
+			SfmtPrimitive.FillArray32(sfmt, array, 1024);
+
+			Console.WriteLine(array[0]);
+
+
+
+
+
+
+
 		}
 
-
-
-		private static double ProbOneCanon(double p, int n) => Pow(1 - p, (Pow(n, 2) + n) / 2);
 	}
 }
